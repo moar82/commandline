@@ -1,0 +1,10 @@
+INDEX VERSION 1.126+C:\Users\Bim Bim\workspace\eclipse.commandline\.metadata\.plugins\org.eclipse.jdt.core
+1067094681.index
+2098092664.index
+3491506571.index
+3496362584.index
+2475276199.index
+3063251167.index
+4126797049.index
+3788478102.index
+1649493906.index
