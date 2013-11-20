@@ -38,6 +38,9 @@ import org.eclipse.jdt.launching.IVMInstall;
 import org.eclipse.jdt.launching.JavaRuntime;
 import org.eclipse.jdt.launching.LibraryLocation;
 import org.eclipse.jdt.ui.PreferenceConstants;
+import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.jdt.ui.*;
 
 public class Application implements IApplication {
 
@@ -161,10 +164,11 @@ public class Application implements IApplication {
 			
 			for(IProject project : projects) {
 				
-				
+				if (project.getName().toString().compareTo("eclipse.commandline")==0)
+					continue;
 				if(project.isOpen()) {
 					System.out.println("Running JDeodorant on project " + project.getName());
-					
+					String nameVersion;
 					if(project.hasNature(JavaCore.NATURE_ID)) {
 						IJavaProject jproject = JavaCore.create(project);
 						List<MoveMethodCandidateRefactoring> moveMethodCandidateList = Standalone.getMoveMethodRefactoringOpportunities(jproject);
@@ -173,12 +177,13 @@ public class Application implements IApplication {
 						File SmellFile=new File(project.getName()+"FeatureEnvy.csv");
 						writer = new  BufferedWriter ( new FileWriter(SmellFile));
 						System.out.println(SmellFile.getCanonicalPath());
-						//headers
-						writer.write("Source Class,Method which Envies,Target Class");
+						nameVersion=new String(project.getName().substring(project.getName().lastIndexOf("k")+1));
+						//headers						
+						writer.write("Source Class,Method which Envies,Target Class,Version");
 						writer.newLine();
 						for(MoveMethodCandidateRefactoring candidate : moveMethodCandidateList) {							
 							System.out.println(candidate);
-							writer.write(candidate.getSourceClass()+","+candidate.getMovedMethodName()+","+candidate.getTargetClass());
+							writer.write(candidate.getSourceClass()+","+candidate.getMovedMethodName()+","+candidate.getTargetClass()+","+nameVersion);
 							writer.newLine();
 						}
 						if (writer != null) writer.close();
@@ -189,7 +194,7 @@ public class Application implements IApplication {
 						System.out.println(SmellFile.getCanonicalPath());
 						writer = new  BufferedWriter ( new FileWriter(SmellFile));
 						//headers
-						writer.write("Class,State Checking Method,Abstract Method Name");
+						writer.write("Class,State Checking Method,Abstract Method Name,Version");
 						writer.newLine();
 						for(TypeCheckEliminationGroup group : typeCheckEliminationGroupList) {
 							List<TypeCheckElimination> typeCheckEliminationList = group.getCandidates();
@@ -197,7 +202,7 @@ public class Application implements IApplication {
 								System.out.println(elimination);
 								String[] myelimination=elimination.toString().split(":");
 								writer.write(myelimination[0]+","+elimination.getAbstractMethodName()+
-										","+elimination.getAbstractMethodName());
+										","+elimination.getAbstractMethodName()+","+nameVersion);
 								writer.newLine();
 							}
 						}
@@ -206,18 +211,19 @@ public class Application implements IApplication {
 						//long method
 						Set<ASTSliceGroup> sliceGroupList = Standalone.getExtractMethodRefactoringOpportunities(jproject);
 						System.out.println("Extract Method Refactoring Opportunities:");
-						SmellFile=new File(project.getName()+"longMethod.csv");
+						SmellFile=new File(project.getName()+"LongMethod.csv");
 						writer = new  BufferedWriter ( new FileWriter(SmellFile));
 						System.out.println(SmellFile.getCanonicalPath());
 						//headers
-						writer.write("Class	Source,Method,Variable Criterion");
+						writer.write("Class	Source,Method,Variable Criterion,Version");
 						writer.newLine();
 						for(ASTSliceGroup group : sliceGroupList) {
 							Set<ASTSlice> slices = group.getCandidates();	
 							for(ASTSlice slice : slices) {
 								System.out.println(slice);
 								String[] mySlice=slice.toString().split("\\s+");
-								writer.write(mySlice[0]+","+slice.getSourceMethodDeclaration().getName().toString()+","+slice.getLocalVariableCriterion().getName());
+								writer.write(mySlice[0]+","+slice.getSourceMethodDeclaration().getName().toString()+","+
+								slice.getLocalVariableCriterion().getName()+","+nameVersion);
 								writer.newLine();
 							}
 						}
@@ -231,13 +237,13 @@ public class Application implements IApplication {
 						writer = new  BufferedWriter ( new FileWriter(SmellFile));
 						System.out.println(SmellFile.getCanonicalPath());
 						//headers
-						writer.write("Class");
+						writer.write("Class,Version");
 						writer.newLine();
 						for(ExtractClassCandidateGroup group : extractClassGroupList) {
 							List<ExtractClassCandidateRefactoring> candidates = group.getCandidates();
 							for(ExtractClassCandidateRefactoring candidate : candidates) {
 								System.out.println(candidate);
-								writer.write(candidate.getSourceEntity().lastIndexOf(".")+1);
+								writer.write(candidate.getSourceEntity().substring(candidate.getSourceEntity().lastIndexOf(".")+1)+","+nameVersion);
 								writer.newLine();
 							}
 						}
