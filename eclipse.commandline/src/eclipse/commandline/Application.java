@@ -243,10 +243,12 @@ public class Application implements IApplication {
 							List<ExtractClassCandidateRefactoring> candidates = group.getCandidates();
 							for(ExtractClassCandidateRefactoring candidate : candidates) {
 								System.out.println(candidate);
-								writer.write(candidate.getSourceEntity().substring(candidate.getSourceEntity().lastIndexOf(".")+1)+","+nameVersion);
+								writer.write(candidate.getSource().substring(candidate.getSource().lastIndexOf(".")+1)+","+nameVersion);
+								//writer.write(candidate.getSourceEntity().substring(candidate.getSourceEntity().lastIndexOf(".")+1)+","+nameVersion);
 								writer.newLine();
 							}
 						}
+						if (writer != null) writer.close();
 						
 					}
 				}
